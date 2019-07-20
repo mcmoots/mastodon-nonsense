@@ -3,21 +3,20 @@
 SELECT
     codes.shortcode
     , count(distinct statii.id) 
-FROM (
-    SELECT shortcode 
-    FROM custom_emojis 
-    WHERE 
-        visible_in_picker=True
-        and disabled=False
-    ) as codes
+FROM custom_emojis as codes
 LEFT JOIN (
     SELECT id, text from statuses
     WHERE
         local=True
-        and created_at > '2019-07-17'
+        and updated_at > '2019-07-17'
     ) as statii
 ON
-    statii.text similar to codes.shortcode
+    statii.text like '%:' || codes.shortcode || ':%'
+WHERE
+    codes.visible_in_picker=True
+    and codes.disabled=False
+    -- these are the ones we have copied to our server  
+    and codes.domain is null
 GROUP BY
     codes.shortcode
 ;
